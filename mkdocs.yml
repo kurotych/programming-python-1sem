@@ -1,0 +1,47 @@
+site_name: Python (1 семестр)
+site_url: https://kurotych.com/ua/courses/programming-1sem/
+repo_url: https://github.com/kurotych/programming-python-1sem
+repo_name: kurotych/programming-python-1sem
+
+watch:
+  - docs
+
+theme:
+  name: material
+  custom_dir: overrides
+  features:
+    - navigation.sections
+    - navigation.expand
+    - toc.integrate
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+copyright: 2026 Куротич Анатолій. Всі права захищені.
+
+extra:
+  analytics:
+    provider: google
+    property: G-HKDH744EMY
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/kurotych
+
+nav:
+  - Головна: index.md
