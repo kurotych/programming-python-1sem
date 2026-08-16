@@ -45,3 +45,6 @@ extra:
 
 nav:
   - Головна: index.md
+  - Модуль 1:
+    - module1/01-intro-lecture.md
+    - module1/02-tools-lecture.md
