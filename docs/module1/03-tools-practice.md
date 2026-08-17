@@ -167,23 +167,3 @@ Loud version: ANATOLII KUROTYCH
 3. Запустіть код і зробіть знімок екрана разом із виводом.
 4. Запишіть, **який саме сервіс** ви використали.
 
-### Завдання 6. Покрокове виконання в Python Tutor
-
-1. Відкрийте [pythontutor.com](https://pythontutor.com/) → *Python 3*.
-2. Вставте цю програму:
-
-    ```python
-    name = "Anatolii"
-    total = 0
-
-    for i in range(1, 6):
-        total = total + i
-        print("i =", i, "total =", total)
-
-    print(name, "counted the sum:", total)
-    ```
-
-3. Натисніть **Visualize Execution** і пройдіть програму по кроках кнопкою *Next*.
-4. Занотуйте, як змінюються значення `i` та `total` на кожному кроці.
-
-**Результат:** знімок екрана з візуалізацією на будь-якому проміжному кроці.
