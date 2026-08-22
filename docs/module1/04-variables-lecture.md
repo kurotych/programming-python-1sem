@@ -509,32 +509,6 @@ print(not (is_weekend or is_holiday))       # False
 | `False` | `True` | `False` | `True` | `True` |
 | `False` | `False` | `False` | `False` | `True` |
 
-### Хибні значення
-
-Будь-яке значення в Python можна трактувати як логічне. **Хибними** вважаються:
-
-```python
-print(bool(0))          # False
-print(bool(0.0))        # False
-print(bool(""))         # False — порожній рядок
-print(bool(None))       # False
-
-print(bool(42))         # True
-print(bool(-1))         # True — будь-яке ненульове число
-print(bool("text"))     # True
-print(bool("0"))        # True — це непорожній рядок!
-```
-
-!!! info "bool — це різновид int"
-    Технічно `True` дорівнює `1`, а `False` — `0`, тому їх можна додавати:
-
-    ```python
-    print(True + True)      # 2
-    print(True == 1)        # True
-    ```
-
-    На практиці так писати не варто, але знати корисно — це пояснює несподівані результати.
-
 ## Тип `NoneType`
 
 `None` — спеціальне значення, що позначає **відсутність значення**. Це не нуль і не порожній рядок.
