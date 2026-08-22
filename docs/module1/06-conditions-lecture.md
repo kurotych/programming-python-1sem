@@ -236,7 +236,7 @@ graph TD
 **`TabError: inconsistent use of tabs and spaces in indentation`** — у файлі змішані табуляції та пробіли. Найпідступніша з помилок: на екрані код виглядає рівним, бо табуляція візуально дорівнює кільком пробілам, але для Python це різні символи.
 
 !!! tip "Налаштуйте редактор один раз"
-    У VS Code: у рядку стану внизу натисніть на `Spaces: 4` → **Convert Indentation to Spaces**. Увімкніть `View → Render Whitespace`, щоб бачити пробіли й табуляції. У Neovim: `set expandtab shiftwidth=4 tabstop=4`. Після цього про `TabError` можна забути.
+    У VS Code: у рядку стану внизу натисніть на `Spaces: 4` → **Convert Indentation to Spaces**. Увімкніть `View → Render Whitespace`, щоб бачити пробіли й табуляції. Після цього про `TabError` можна забути.
 
 !!! info "Порожній блок: `pass`"
     Блок не може бути порожнім. Якщо тіло ще не написане, поставте `pass` — оператор, що не робить нічого:
