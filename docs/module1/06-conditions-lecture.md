@@ -408,16 +408,15 @@ Greater than 5
 ```python
 # Program: check access to a driving simulator
 age = int(input("Age: "))
-has_license = input("Do you have a license (yes/no)? ") == "yes"
 
 if age >= 18:
+    has_license = input("Do you have a license (yes/no)? ") == "yes"
     if has_license:
         print("Access granted")
     else:
         print("Access denied: license required")
 else:
-    print("Access denied: you are too young")
-```
+    print("Access denied: you are too young")```
 
 ```text
 Age: 20
