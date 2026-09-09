@@ -894,126 +894,8 @@ Equal values: True
 | `==` | однакові **значення**? | `[1, 2] == [1, 2]` → `True` |
 | `is` | це **той самий об'єкт**? | `[1, 2] is [1, 2]` → `False` |
 
-### Копія копії: вкладені списки
-
-```python
-# Program: a shallow copy does not copy nested lists
-journal = [["Olha", 90], ["Petro", 75]]
-shallow = journal.copy()
-
-shallow[0][1] = 100         # змінюємо ВКЛАДЕНИЙ список
-
-print(f"shallow: {shallow}")
-print(f"journal: {journal}")
-```
-
-```text
-shallow: [['Olha', 100], ['Petro', 75]]
-journal: [['Olha', 100], ['Petro', 75]]
-```
-
-`copy()` створює новий зовнішній список, але кладе в нього **ті самі** посилання на вкладені списки. Це називається **поверхневою копією**. Щоб скопіювати всю структуру, потрібна **глибока копія**:
-
-```python
-# Program: deep copy of a nested list
-import copy
-
-journal = [["Olha", 90], ["Petro", 75]]
-deep = copy.deepcopy(journal)
-
-deep[0][1] = 100
-
-print(f"deep:    {deep}")
-print(f"journal: {journal}")
-```
-
-```text
-deep:    [['Olha', 100], ['Petro', 75]]
-journal: [['Olha', 90], ['Petro', 75]]
-```
-
-### Список як аргумент функції
-
-Ця сама механіка пояснює поведінку, яку ми бачили на лекції про функції:
-
-```python
-# Program: a function can modify the list passed to it
-def add_bonus(grades):
-    """Add one bonus point to every grade in place."""
-    for i in range(len(grades)):
-        grades[i] += 1
-
-
-student_grades = [90, 75, 84]
-add_bonus(student_grades)
-
-print(student_grades)
-```
-
-```text
-[91, 76, 85]
-```
-
-Функція отримала **посилання** на список, а не його копію, тому зміни видимі зовні. Якщо це небажано — копіюйте всередині функції та повертайте новий список:
-
-```python
-# Program: a function that does not touch the original list
-def with_bonus(grades):
-    """Return a new list where every grade is increased by one."""
-    result = grades.copy()
-    for i in range(len(result)):
-        result[i] += 1
-    return result
-
-
-student_grades = [90, 75, 84]
-improved = with_bonus(student_grades)
-
-print(f"original: {student_grades}")
-print(f"improved: {improved}")
-```
-
-```text
-original: [90, 75, 84]
-improved: [91, 76, 85]
-```
-
-!!! danger "Порожній список як значення за замовчуванням"
-    ```python
-    def bad_add(item, storage=[]):          # НІКОЛИ так не робіть
-        storage.append(item)
-        return storage
-
-
-    print(bad_add("a"))
-    print(bad_add("b"))
-    print(bad_add("c"))
-    ```
-
-    ```text
-    ['a']
-    ['a', 'b']
-    ['a', 'b', 'c']
-    ```
-
-    Значення за замовчуванням обчислюється **один раз**, під час оголошення функції, тому всі виклики користуються тим самим списком. Правильний зразок:
-
-    ```python
-    def good_add(item, storage=None):
-        if storage is None:
-            storage = []
-        storage.append(item)
-        return storage
-
-
-    print(good_add("a"))
-    print(good_add("b"))
-    ```
-
-    ```text
-    ['a']
-    ['b']
-    ```
+!!! info "Що лишилося за кадром"
+    `copy()` створює новий список, але кладе в нього **ті самі** посилання на елементи: якщо елементи — теж списки, вони залишаться спільними для обох копій. Так само список, переданий у функцію, передається посиланням, тому зміни всередині функції видно ззовні. І перше, і друге — наслідки того, що список є змінюваним обʼєктом; докладно розберемо це на лекції 20.
 
 ## Списковий вираз
 
@@ -1214,25 +1096,7 @@ id after:  140234567891456
 
 - **Захист від випадкової зміни.** Координати, дата народження, налаштування конфігурації не мають змінюватися — кортеж робить це технічно неможливим.
 - **Ключ словника.** Кортеж можна використати як ключ у словнику, а список — ні (побачимо на лекції 16).
-- **Швидкість і памʼять.** Кортеж займає менше памʼяті й створюється швидше:
-
-```python
-# Program: compare memory footprint of a list and a tuple
-import sys
-
-as_list = [1, 2, 3, 4, 5]
-as_tuple = (1, 2, 3, 4, 5)
-
-print(f"list:  {sys.getsizeof(as_list)} bytes")
-print(f"tuple: {sys.getsizeof(as_tuple)} bytes")
-```
-
-```text
-list:  104 bytes
-tuple: 80 bytes
-```
-
-(Точні числа залежать від версії Python — важливе саме співвідношення.)
+- **Швидкість і памʼять.** Кортеж займає менше памʼяті й створюється швидше за список тієї самої довжини. Чому саме так — на лекції 25, коли розберемо внутрішню будову структур даних.
 
 ## Розпакування послідовностей
 
@@ -1538,8 +1402,7 @@ print(type(one))
 - Методи, які змінюють список на місці, повертають `None` — `lst = lst.append(x)` знищує список.
 - `in`, `index()`, `count()` — пошук; `len`, `sum`, `min`, `max` — агрегати; на порожньому списку `min`/`max` дають `ValueError`.
 - `lst.sort()` сортує сам список і повертає `None`; `sorted(lst)` повертає новий список; `key` і `reverse` керують порядком.
-- Присвоєння списку **не копіює** його: `b = a` створює друге імʼя. Копія — `a.copy()`, `a[:]`, `list(a)`; для вкладених структур — `copy.deepcopy()`.
-- Функція, що отримала список, може його змінити — це видно ззовні.
+- Присвоєння списку **не копіює** його: `b = a` створює друге імʼя. Копія — `a.copy()`, `a[:]`, `list(a)`; `==` порівнює значення, `is` — тотожність обʼєкта.
 - **Списковий вираз** `[вираз for x in джерело if умова]` — компактна заміна циклу, що будує список.
 - Кортеж утворюють **коми**, а не дужки: `(5)` — число, `(5,)` — кортеж.
 - Незмінюваність кортежа неглибока: вкладений список усередині кортежа змінити можна.
@@ -1553,7 +1416,6 @@ print(type(one))
 - [Кортежі та послідовності](https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences)
 - [Спискові вирази](https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions)
 - [Типи послідовностей — довідник](https://docs.python.org/3/library/stdtypes.html#sequence-types-list-tuple-range)
-- [Модуль `copy`](https://docs.python.org/3/library/copy.html)
 - [Функція `sorted()` та сортування](https://docs.python.org/3/howto/sorting.html)
 
 ## Домашнє завдання
