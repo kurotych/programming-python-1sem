@@ -608,31 +608,6 @@ print(by_group)
 
     `get()` повернув **новий порожній список**, у нього додали імʼя — але в словник цей список ніхто не поклав. `setdefault()` відрізняється саме тим, що зберігає значення за замовчуванням у словнику.
 
-### Пошук ключа з найбільшим значенням
-
-`max(grades)` порівнює **ключі** (імена за алфавітом), а не оцінки. Щоб порівнювати значення, передаємо `key` — як у сортуванні на лекції 14:
-
-```python
-# Program: find the key with the largest value
-grades = {"Olha": 90, "Petro": 75, "Iryna": 94}
-
-print(max(grades))                      # найбільший КЛЮЧ за алфавітом
-
-best = max(grades, key=grades.get)
-worst = min(grades, key=grades.get)
-
-print(f"Best:  {best} ({grades[best]})")
-print(f"Worst: {worst} ({grades[worst]})")
-```
-
-```text
-Petro
-Best:  Iryna (94)
-Worst: Petro (75)
-```
-
-`key=grades.get` означає: «для кожного ключа виклич `grades.get(ключ)` і порівнюй результати». Дужок після `get` немає — ми передаємо саму функцію, а не результат її виклику.
-
 ### Інверсія словника
 
 ```python
@@ -664,12 +639,6 @@ grades = {"Petro": 75, "Olha": 90, "Iryna": 94, "Andrii": 61}
 
 print(sorted(grades))                   # ключі за алфавітом
 print(sorted(grades.items()))           # пари за ключем
-
-by_grade = sorted(grades.items(), key=lambda pair: pair[1], reverse=True)
-print(by_grade)                         # пари за значенням, від більшого
-
-ranking = dict(by_grade)                # назад у словник
-print(ranking)
 ```
 
 ```text
@@ -827,49 +796,6 @@ print(defaults)
 ```
 
 Оператор `|` для словників зʼявився в Python 3.9. Різниця та сама, що між `sorted()` і `sort()`: `|` створює новий словник, `update()` змінює наявний.
-
-## Словниковий вираз
-
-**Словниковий вираз** (dict comprehension) — аналог спискового виразу, але в фігурних дужках і з двокрапкою між ключем і значенням.
-
-```python
-# Program: dictionary comprehensions
-squares = {n: n ** 2 for n in range(1, 6)}
-print(squares)
-
-names = ["Olha", "Petro", "Iryna"]
-lengths = {name: len(name) for name in names}
-print(lengths)
-
-grades = {"Olha": 90, "Petro": 55, "Iryna": 84, "Andrii": 40}
-passed = {name: grade for name, grade in grades.items() if grade >= 60}
-print(passed)
-
-codes = {"UA": "Ukraine", "PL": "Poland"}
-by_country = {country: code for code, country in codes.items()}
-print(by_country)
-```
-
-```text
-{1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
-{'Olha': 4, 'Petro': 5, 'Iryna': 5}
-{'Olha': 90, 'Iryna': 84}
-{'Ukraine': 'UA', 'Poland': 'PL'}
-```
-
-```mermaid
-graph LR
-    K["name: grade<br/>ключ: значення"] --> F["for name, grade<br/>змінні"]
-    F --> S["in grades.items()<br/>джерело"]
-    S --> C["if grade >= 60<br/>необовʼязково"]
-
-    style K fill:#339af0,stroke:#333,color:#fff
-    style F fill:#ffd43b,stroke:#333,color:#000
-    style S fill:#ff922b,stroke:#333,color:#000
-    style C fill:#51cf66,stroke:#333,color:#000
-```
-
-Вираз `passed` — це правильний спосіб «вилучити» пари за умовою: не видаляти їх під час перебору, а побудувати новий словник лише з потрібних.
 
 ## Множина: створення та особливості
 
@@ -1190,32 +1116,6 @@ rest
 ```
 
 Останній рядок показує, що `frozenset({"Sun", "Sat"})` і `frozenset({"Sat", "Sun"})` — однаковий ключ: порядку в множині немає.
-
-## Множинний вираз
-
-```python
-# Program: set comprehensions
-numbers = [3, -1, 4, -1, 5, -9, 2, 6, 5, 3]
-squares = {n * n for n in numbers}
-print(sorted(squares))
-
-words = ["apple", "avocado", "banana", "blueberry", "cherry"]
-first_letters = {word[0] for word in words}
-print(sorted(first_letters))
-```
-
-```text
-[1, 4, 9, 16, 25, 36, 81]
-['a', 'b', 'c']
-```
-
-Фігурні дужки однакові для всіх трьох виразів — тип визначає вміст:
-
-| Вираз | Результат |
-|---|---|
-| `[x for x in data]` | список |
-| `{x for x in data}` | множина |
-| `{x: f(x) for x in data}` | словник — є двокрапка |
 
 ## Чотири колекції: як обрати
 
