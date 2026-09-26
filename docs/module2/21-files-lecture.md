@@ -13,19 +13,20 @@
 9. Частини шляху
 10. Перевірка існування, створення каталогів
 11. Перегляд вмісту каталогу
-12. Відкриття файлу: `open()`
-13. Менеджер контексту `with`
-14. Кодування тексту
-15. Режими відкриття файлу
-16. Читання: `read`, `readline`, `readlines`, перебір
-17. Запис: `write`, `writelines`, `print(file=...)`
-18. Додавання в кінець і безпечне створення
-19. Швидкі методи `read_text` і `write_text`
-20. Позиція у файлі: `tell` і `seek`
-21. Двійкові файли
-22. Копіювання, перейменування, видалення
-23. Приклад: журнал оцінок у файлі
-24. Типові помилки
+12. Аргументи командного рядка
+13. Відкриття файлу: `open()`
+14. Менеджер контексту `with`
+15. Кодування тексту
+16. Режими відкриття файлу
+17. Читання: `read`, `readline`, `readlines`, перебір
+18. Запис: `write`, `writelines`, `print(file=...)`
+19. Додавання в кінець і безпечне створення
+20. Швидкі методи `read_text` і `write_text`
+21. Позиція у файлі: `tell` і `seek`
+22. Двійкові файли
+23. Копіювання, перейменування, видалення
+24. Приклад: журнал оцінок у файлі
+25. Типові помилки
 
 ## Навіщо програмі файли
 
@@ -414,6 +415,181 @@ only .txt:
 - `rglob("*.txt")` шукає за тим самим шаблоном рекурсивно, у всіх вкладених каталогах.
 
 Порядок, у якому `iterdir()` повертає записи, не визначений — тому в прикладі стоїть `sorted()`.
+
+## Аргументи командного рядка
+
+Досі шлях до файлу був записаний прямо в коді. Але справжні програми отримують його ззовні — так само, як `python3`, `git` чи `cp` отримують те, з чим мають працювати:
+
+```text
+$ cp report.txt backup.txt
+$ python3 count_lines.py data/grades.txt
+```
+
+Усе, що написано в терміналі після назви скрипта, потрапляє у програму списком **аргументів командного рядка**. Python складає їх у список `sys.argv`.
+
+```python
+# Program: what the program receives from the command line
+import sys
+
+print(sys.argv)
+print("count:   ", len(sys.argv))
+print("script:  ", sys.argv[0])
+print("arguments:", sys.argv[1:])
+```
+
+```text
+$ python3 show_args.py data/grades.txt 10 --quiet
+['show_args.py', 'data/grades.txt', '10', '--quiet']
+count:    4
+script:   show_args.py
+arguments: ['data/grades.txt', '10', '--quiet']
+
+$ python3 show_args.py
+['show_args.py']
+count:    1
+script:   show_args.py
+arguments: []
+```
+
+Три властивості `sys.argv`, які треба запамʼятати:
+
+1. **`sys.argv[0]` — це сам скрипт**, а не перший аргумент. Власні аргументи починаються з індексу `1`, тому їх зручно брати зрізом `sys.argv[1:]`.
+2. **Аргументів може не бути взагалі.** Тоді в списку лише один елемент, а `sys.argv[1]` дасть `IndexError`. Кількість треба перевіряти **до** звертання.
+3. **Усі аргументи — рядки.** Навіть `10` приходить як `"10"`.
+
+```python
+# Program: arguments are always strings
+import sys
+
+value = sys.argv[1] if len(sys.argv) > 1 else "10"
+
+print(type(value).__name__, repr(value))
+print(value * 2)
+print(int(value) * 2)
+```
+
+```text
+$ python3 double.py 7
+str '7'
+77
+14
+
+$ python3 double.py
+str '10'
+1010
+20
+```
+
+`value * 2` для рядка `"7"` дає `"77"`, і саме тут ховається помилка, яку легко не помітити: програма не падає, вона просто рахує не те. Число з аргументу треба явно перетворити через `int()` або `float()`.
+
+Рядок `sys.argv[1] if len(sys.argv) > 1 else "10"` — це **умовний вираз**: він повертає перше значення, якщо умова істинна, і друге, якщо ні. Його звичайна форма — звичайний `if`:
+
+```python
+# Program: the same choice written as a plain if
+import sys
+
+if len(sys.argv) > 1:
+    value = sys.argv[1]
+else:
+    value = "10"
+
+print(int(value) * 2)
+```
+
+### Розділення аргументів і лапки
+
+Термінал розрізає командний рядок за пробілами. Тому імʼя файлу з пробілом усередині треба взяти в лапки, інакше воно приїде двома окремими аргументами:
+
+```text
+$ python3 show_args.py my report.txt
+['show_args.py', 'my', 'report.txt']
+count:    3
+script:   show_args.py
+arguments: ['my', 'report.txt']
+
+$ python3 show_args.py "my report.txt"
+['show_args.py', 'my report.txt']
+count:    2
+script:   show_args.py
+arguments: ['my report.txt']
+```
+
+### Аргумент-шлях відлічується від робочого каталогу
+
+Це найважливіша річ у цьому розділі. Користувач набирає шлях у терміналі, а отже, він має на увазі **поточний робочий каталог**, а не каталог, де лежить скрипт.
+
+```text
+$ cd /home/student/projects/lab21
+$ python3 count_lines.py data/grades.txt
+```
+
+Тут `data/grades.txt` означає `/home/student/projects/lab21/data/grades.txt`. Якщо ту саму програму запустити з іншого місця, той самий аргумент означатиме інший файл — і це правильна поведінка, саме її очікує користувач.
+
+Отже, правило таке:
+
+| Що за шлях | Від чого будувати |
+|---|---|
+| файл, який назвав користувач (`sys.argv`) | від робочого каталогу — тобто `Path(sys.argv[1])` **без** додавання `BASE` |
+| власні дані програми (налаштування, журнал, шаблони) | від каталогу скрипта — `Path(__file__).resolve().parent / ...` |
+
+Найгрубіша помилка — склеїти каталог скрипта з аргументом користувача: `BASE / sys.argv[1]`. Тоді користувач напише шлях, який бачить у себе в терміналі, а програма шукатиме зовсім не там.
+
+### Приклад: лічильник рядків
+
+Зберемо все разом — маленька програма в дусі системної утиліти `wc -l`.
+
+```python
+# Program: count lines in the file named on the command line
+import sys
+from pathlib import Path
+
+BASE = Path(__file__).resolve().parent
+script_name = Path(sys.argv[0]).name
+
+if len(sys.argv) > 1:
+    path = Path(sys.argv[1])
+else:
+    path = BASE / "argv_demo.txt"
+    path.write_text("alpha\nbeta\ngamma\n", encoding="utf-8")
+    print(f"usage: python3 {script_name} <file>")
+    print(f"no file given, demo file {path.name} created")
+
+if not path.is_file():
+    print(f"error: file not found: {path}")
+    sys.exit(1)
+
+lines = 0
+words = 0
+with open(path, encoding="utf-8") as f:
+    for line in f:
+        lines += 1
+        words += len(line.split())
+
+print(f"{path.name}: {lines} lines, {words} words")
+```
+
+```text
+$ python3 count_lines.py
+usage: python3 count_lines.py <file>
+no file given, demo file argv_demo.txt created
+argv_demo.txt: 3 lines, 3 words
+
+$ python3 count_lines.py data/grades.txt
+grades.txt: 4 lines, 9 words
+
+$ python3 count_lines.py nothing.txt
+error: file not found: nothing.txt
+```
+
+Що тут варто помітити:
+
+- `Path(sys.argv[0]).name` дає коротку назву скрипта для підказки `usage` — не доведеться переписувати її після перейменування файлу.
+- Перевірка `len(sys.argv) > 1` стоїть **перед** звертанням до `sys.argv[1]`.
+- `path.is_file()` відсіює і відсутній файл, і випадок, коли за цим шляхом лежить каталог.
+- `sys.exit(1)` завершує програму з **кодом помилки**: нуль означає успіх, будь-яке інше число — збій. За цим кодом термінал та інші програми розуміють, чи все пройшло добре.
+
+!!! tip "Коли аргументів стає багато"
+    Поки аргумент один-два, `sys.argv` цілком достатньо. Для серйозної утиліти з ключами (`--output report.txt`, `-v`, `--help`) у стандартній бібліотеці є модуль [`argparse`](https://docs.python.org/3/library/argparse.html): він сам розбирає ключі, перевіряє типи і генерує довідку. У цьому курсі він не обовʼязковий, але знати про нього варто.
 
 ## Відкриття файлу: `open()`
 
@@ -1097,6 +1273,9 @@ group         11                   82.27
 | `ValueError: invalid literal for int()` | порожній рядок у кінці файлу | пропускати порожні рядки перевіркою `if not line: continue` |
 | `open("~/notes.txt")` не знаходить файл | тильду розгортає термінал, не Python | `Path("~/notes.txt").expanduser()` |
 | `FileExistsError` у `mkdir()` | каталог уже існує | `mkdir(exist_ok=True)` |
+| `IndexError: list index out of range` | звертання до `sys.argv[1]`, коли аргумент не передали | перевірити `len(sys.argv) > 1` |
+| Аргумент-число поводиться як текст (`"7" * 2` дає `"77"`) | усі елементи `sys.argv` — рядки | `int(sys.argv[1])` |
+| Програма не знаходить файл, який користувач бачить у терміналі | шлях з аргументу склеїли з каталогом скрипта | `Path(sys.argv[1])` без `BASE` |
 
 ```python
 # Program: the four classic file mistakes and their fixes
@@ -1142,6 +1321,8 @@ False True
 - **Абсолютний шлях** починається з `/` і відлічується від кореня файлової системи; **відносний** — від **поточного робочого каталогу**, який залежить від місця запуску програми, а не від місця файлу з кодом.
 - `.` — поточний каталог, `..` — батьківський, `~` — домашній каталог (розгортає термінал, у Python — `expanduser()`).
 - Робочий каталог: `os.getcwd()` або `Path.cwd()`. Каталог самого скрипта: `Path(__file__).resolve().parent` — саме від нього варто будувати шляхи до даних проєкту.
+- **Аргументи командного рядка** приходять у `sys.argv`: `sys.argv[0]` — сам скрипт, власні аргументи — `sys.argv[1:]`, усі вони **рядки**. Кількість перевіряйте до звертання за індексом.
+- Шлях з аргументу відлічується від **робочого каталогу** (`Path(sys.argv[1])` без `BASE`), а власні дані програми — від каталогу скрипта.
 - `pathlib.Path` зʼєднує частини шляху оператором `/` і дає `name`, `stem`, `suffix`, `parent`, `parts`, `resolve()`, `exists()`, `is_file()`, `is_dir()`, `mkdir()`, `iterdir()`, `glob()`.
 - Файл відкривають через `with open(path, mode, encoding="utf-8") as f:` — `with` закриває файл завжди, навіть після помилки.
 - Кодування вказують **завжди**: `encoding="utf-8"`.
@@ -1161,6 +1342,8 @@ False True
 - [Модуль `pathlib`](https://docs.python.org/3/library/pathlib.html)
 - [Модуль `os.path`](https://docs.python.org/3/library/os.path.html)
 - [Модуль `shutil`](https://docs.python.org/3/library/shutil.html)
+- [`sys.argv` — довідник](https://docs.python.org/3/library/sys.html#sys.argv)
+- [Модуль `argparse`](https://docs.python.org/3/library/argparse.html)
 - [Unicode у Python](https://docs.python.org/3/howto/unicode.html)
 
 ## Домашнє завдання
