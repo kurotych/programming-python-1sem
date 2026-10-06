@@ -9,6 +9,15 @@ watch:
 theme:
   name: material
   custom_dir: overrides
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Перемкнути на темну тему
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Перемкнути на світлу тему
   features:
     - navigation.sections
     - navigation.expand
