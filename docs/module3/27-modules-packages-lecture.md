@@ -230,24 +230,6 @@ grades
 
 ## Що відбувається під час імпорту
 
-Коли Python виконує `import grades`, відбувається таке:
-
-```mermaid
-flowchart TD
-    A["import grades"] --> B{"grades in sys.modules?"}
-    B -- yes --> F["bind name grades<br/>to the existing module"]
-    B -- no --> C["search grades.py<br/>in sys.path"]
-    C -- not found --> E["ModuleNotFoundError"]
-    C -- found --> D["create empty module object,<br/>put it into sys.modules"]
-    D --> G["execute grades.py<br/>top to bottom"]
-    G --> F
-```
-
-Головне з цієї схеми:
-
-1. **Код модуля виконується повністю**, згори донизу. Інструкції `def` створюють функції, присвоєння — змінні. Але й `print()`, `input()`, цикли, читання файлів на верхньому рівні модуля теж **виконуються**.
-2. **Модуль виконується лише один раз** за запуск програми. Готовий модуль зберігається у словнику `sys.modules`, і повторний `import` просто бере його звідти.
-
 ```python
 # File: config.py
 print("config: loading")
